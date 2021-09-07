@@ -30,7 +30,7 @@ def getMatch(birthdays):
     if len(birthdays) == len(set(birthdays)):
         return None # All birthdays are unique, so return None.
 
-    # Compare each birthday to every other birthday:
+    # Compare each birthday to every other birthday now:
     for a, birthdayA in enumerate(birthdays):
         for b, birthdayB in enumerate(birthdays[a + 1 :]):
             if birthdayA == birthdayB:
