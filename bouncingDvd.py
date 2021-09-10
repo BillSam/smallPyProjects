@@ -30,8 +30,8 @@ COLORS = ["red", "green", "yellow", "blue", "magenta", "cyan", "white"]
 UP_RIGHT = "ur"
 UP_LEFT = "ul"
 DOWN_RIGHT = "dr"
-DOOWN_LEFT = "dl"
-DIRECTIONS = (UP_RIGHT, UP_LEFT, DOWN_RIGHT, DOOWN_LEFT)
+DOWN_LEFT = "dl"
+DIRECTIONS = (UP_RIGHT, UP_LEFT, DOWN_RIGHT, DOWN_LEFT)
 
 # Key names for logo dictionaries:
 COLOR = 'color'
@@ -131,7 +131,7 @@ def main():
             # Draw the logos at their new location:
             bext.goto(logo[X], logo[Y])
             bext.fg(logo[COLOR])
-            print('DVD', end='')
+            print('LUV', end='')
 
         bext.goto(0, 0)
 
