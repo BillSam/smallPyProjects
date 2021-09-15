@@ -107,12 +107,12 @@ def generateFish():
         colors = []
         for i in range(fishLength):
             colors.append(getRandomColor())
-    if colorPattern == 'single' or colorPattern = 'head-tail':
+    if colorPattern == 'single' or colorPattern == 'head-tail':
         colors = [getRandomColor()] * fishLength # All the Same Color
     if colorPattern == 'head-tail': # Head/Tail different from body
-        heatTailColor = getRandomColor()
+        headTailColor = getRandomColor()
         colors[0] = headTailColor # Set head color
-        colors[-1] = heatTailColor
+        colors[-1] = headTailColor
 
     # Set up the rest of fish data structure:
     fish = {'right':    fishType['right'],
