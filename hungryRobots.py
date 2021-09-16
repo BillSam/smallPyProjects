@@ -46,6 +46,10 @@ def main():
             print('lived to tell the tale! Good job!')
             sys.exit()
 
+        # Move the player and robots:
+        playerPostion =  askForPlayerMove(board, robots, playerPostion)
+        robots = moveRobots(board, robots, playerPostion)
+
 
 
 def getNewBoard():
@@ -106,7 +110,127 @@ def addRobots(board):
     return robots
 
 
+def displayBoard(board, robots, playerPostion):
+    """Display the board, robots, and player on the screen."""
+    # Loop over every space on the board:
+    for y in range(HEIGHT):
+        for x in range(WIDTH):
+            # Draw the appropriate character:
+            if board[(x, y)] == WALL:
+                print(WALL, end='')
+            elif board[(x,y)] == DEAD_ROBOT:
+                print(DEAD_ROBOT, end='')
+            elif (x, y) == playerPostion:
+                print(ROBOT, end='')
+            elif (x, y) in robots:
+                print(ROBOT, end='')
+            else:
+                print(EMPTY_SPACE, end='')
+        print() # Print a newline
 
+
+def askForPlayerMove(board, robots, playerPostion):
+    """Returns the (x, y) integer tuple of the place the player moves
+    next, given their current location and the walls of the board."""
+    playerX, playerY = playerPostion
+
+    # Find which directions aren't blocked by a wall:
+    q = 'Q' if isEmpty(playerX - 1, playerY - 1, board, robots) else ' '
+    w = 'W' if isEmpty(playerX + 0, playerY - 1, board, robots) else ' '
+    e = 'E' if isEmpty(playerX + 1, playerY - 1, board, robots) else ' '
+    d = 'D' if isEmpty(playerX + 1, playerY + 0, board, robots) else ' '
+    c = 'C' if isEmpty(playerX + 1, playerY + 1, board, robots) else ' '
+    x = 'X' if isEmpty(playerX + 0, playerY + 1, board, robots) else ' '
+    z = 'Z' if isEmpty(playerX - 1, playerY + 1, board, robots) else ' '
+    a = 'A' if isEmpty(playerX - 1, playerY + 0, board, robots) else ' '
+    allMoves = (q + w + e + d + c + x + a + z + 'S')
+
+    while True:
+        # Get player's move:
+        print('(T)eleports remaining: {}'.format(board["teleports"]))
+        print('                     ({}) ({}) ({})'.format(q, w, e))
+        print('                     ({}) (S) ({})'.format(a, d))
+        print('Enter move or QUIT: ({}) ({}) ({})'.format(z, x, c))
+
+        move = input('> ').upper()
+        if move == 'QUIT':
+            print('Thanks for playing!')
+            sys.exit()
+        elif move == 'T' and board['teleports'] > 0:
+            # Teleport the player to a random empty space:
+            board['teleports'] -= 1
+            return getRandomEmptySpace(board, robots)
+        elif move != '' and move in allMoves:
+            # Return the new player position based on their move:
+            return {'Q': (playerX - 1, playerY - 1),
+                    'W': (playerX + 0, playerY - 1),
+                    'E': (playerX + 1, playerY - 1),
+                    'D': (playerX + 1, playerY + 0),
+                    'C': (playerX + 1, playerY + 1),
+                    'X': (playerX + 0, playerY + 1),
+                    'Z': (playerX - 1, playerY + 1),
+                    'A': (playerX - 1, playerY + 0),
+                    'S': (playerX, playerY)}[move]
+
+def moveRobots(board, robotPositions, playerPosition):
+    """Return a list of (x, y) tuples of new robot positions after they
+    have tried to move toward the player."""
+    playerx, playery = playerPosition
+    nextRobotPositions = []
+
+    while len(robotPositions) > 0:
+        robotx, roboty = robotPositions[0]
+
+        # Determine the direction the robot moves.
+        if robotx < playerx:
+            movex = 1 # Move right.
+        elif robotx > playerx:
+            movex = -1 # Move left.
+        elif robotx == playerx:
+            movex = 0   # Don't move horizontally.
+
+        if roboty < playery:
+            movey = 1 # Move up
+        elif roboty > playery:
+            movey = -1 # Move down
+        elif roboty == playery:
+            movey = 0 # Don't move vertically.
+
+
+        # Check if the robot would run into a wall, and adjust course:
+        if board[(robotx + movex, roboty + movey)] == WALL:
+            # Robot would run into a wall, so come up with a new move:
+            if board[(robotx + movex, roboty)] == EMPTY_SPACE:
+                movey = 0 # Robot can't move horizontally.
+            elif board[(robotx, roboty + movey)] == EMPTY_SPACE:
+                movex = 0 # Robot can't move vertically.
+            else:
+                # Robot can't move.
+                movex = 0
+                movey = 0
+
+        newRobotx = robotx + movex
+        newRoboty = roboty + movey
+
+        if (board[(robotx, roboty)] == DEAD_ROBOT or
+             board[(newRobotx, newRoboty)] == DEAD_ROBOT):
+                 # Robot is at a crash site, remove it.
+                 del robotPositions[0]
+                 continue
+
+        # Check if it moves into a robot, then destroy both robots:
+        if (newRobotx, newRoboty) in nextRobotPositions:
+            board[(newRobotx, newRoboty)] = DEAD_ROBOT
+            nextRobotPositions.remove((newRobotx, newRoboty))
+        else:
+            nextRobotPositions.append((newRobotx, newRoboty))
+
+        # Remove robots from robotPositions as they move.
+        del robotPositions[0]
+
+# If this program was run (instead of imported), run the game:
+if __name__ == '__main__':
+    main()
 
 
 
