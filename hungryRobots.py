@@ -37,9 +37,9 @@ def main():
     # Set up a new game:
     board = getNewBoard()
     robots = addRobots(board)
-    playerPostion = getRandomEmptySpace(board, robots)
+    playerPosition = getRandomEmptySpace(board, robots)
     while True: # Main game loop.
-        displayBoard(board, robots, playerPostion)
+        displayBoard(board, robots, playerPosition)
 
         if len(robots) == 0:    # Check if the player has won.
             print('All the robots have crashed into each other and you')
@@ -47,8 +47,14 @@ def main():
             sys.exit()
 
         # Move the player and robots:
-        playerPostion =  askForPlayerMove(board, robots, playerPostion)
-        robots = moveRobots(board, robots, playerPostion)
+        playerPosition =  askForPlayerMove(board, robots, playerPosition)
+        robots = moveRobots(board, robots, playerPosition)
+
+        for x, y in robots: # Check if the player has lost.
+            if (x, y) == playerPosition:
+                displayBoard(board, robots, playerPosition)
+                print('You have been caught by a robot!')
+                sys.exit()
 
 
 
@@ -71,7 +77,7 @@ def getNewBoard():
         board[(x, HEIGHT - 1)] = WALL # Make bottom wall
 
     for y in range(HEIGHT):
-        board[(0,y)] = WALL # make left wall.
+        board[(0, y)] = WALL # make left wall.
         board[(WIDTH - 1, y)] = WALL # Make right wall.
 
     # Add the random walls:
@@ -110,7 +116,7 @@ def addRobots(board):
     return robots
 
 
-def displayBoard(board, robots, playerPostion):
+def displayBoard(board, robots, playerPosition):
     """Display the board, robots, and player on the screen."""
     # Loop over every space on the board:
     for y in range(HEIGHT):
@@ -120,8 +126,8 @@ def displayBoard(board, robots, playerPostion):
                 print(WALL, end='')
             elif board[(x,y)] == DEAD_ROBOT:
                 print(DEAD_ROBOT, end='')
-            elif (x, y) == playerPostion:
-                print(ROBOT, end='')
+            elif (x, y) == playerPosition:
+                print(PLAYER, end='')
             elif (x, y) in robots:
                 print(ROBOT, end='')
             else:
@@ -129,10 +135,10 @@ def displayBoard(board, robots, playerPostion):
         print() # Print a newline
 
 
-def askForPlayerMove(board, robots, playerPostion):
+def askForPlayerMove(board, robots, playerPosition):
     """Returns the (x, y) integer tuple of the place the player moves
     next, given their current location and the walls of the board."""
-    playerX, playerY = playerPostion
+    playerX, playerY = playerPosition
 
     # Find which directions aren't blocked by a wall:
     q = 'Q' if isEmpty(playerX - 1, playerY - 1, board, robots) else ' '
@@ -227,6 +233,7 @@ def moveRobots(board, robotPositions, playerPosition):
 
         # Remove robots from robotPositions as they move.
         del robotPositions[0]
+    return nextRobotPositions
 
 # If this program was run (instead of imported), run the game:
 if __name__ == '__main__':
